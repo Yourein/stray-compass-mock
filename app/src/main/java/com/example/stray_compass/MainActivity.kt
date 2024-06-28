@@ -28,9 +28,13 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Navigation
 import androidx.compose.material3.Button
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -45,6 +49,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
+import com.example.stray_compass.resource.Destination
+import com.example.stray_compass.resource.destinationList
 import com.example.stray_compass.resource.locationIntentAction
 import com.example.stray_compass.resource.locationIntentLatitude
 import com.example.stray_compass.resource.locationIntentLongitude
@@ -194,6 +200,8 @@ fun Viewer(viewModel: MainActivityViewModel) {
         distance = viewModel.distanceToDestination,
         headTo = viewModel.headdingTo,
         navigationOffset = viewModel.navigationIconOffset,
+        destinationList = destinationList,
+        mainActivityViewModel = viewModel
     )
 }
 
@@ -206,7 +214,15 @@ fun Viewer(
     distance: Double,
     headTo: Double?,
     navigationOffset: DoublePoint,
+    destinationList : List<Destination>,
+    mainActivityViewModel: MainActivityViewModel
 ) {
+    var showBottomSheet by remember { mutableStateOf(false) }
+
+    @OptIn(ExperimentalMaterial3Api::class)
+    val sheetState = rememberModalBottomSheetState()
+
+
     Column(
         modifier = Modifier.padding(16.dp)
     ) {
@@ -216,7 +232,11 @@ fun Viewer(
         Text("Destination: ${destination.latitude}, ${destination.longitude}")
         Text("Distance: $distance")
         Text("headTo: $headTo")
-
+        Button(onClick = {
+            showBottomSheet = true
+        }) {
+            Text("目的地を変更")
+        }
         Spacer(Modifier.height(8.dp))
 
         Box(
@@ -244,5 +264,26 @@ fun Viewer(
                     }
             )
         }
+
+    }
+
+    if (showBottomSheet) {
+        @OptIn(ExperimentalMaterial3Api::class)
+        ModalBottomSheet(
+            onDismissRequest = {
+                showBottomSheet = false
+            }
+        ) {
+            Column() {
+                destinationList.forEach { destination ->
+                    TextButton(onClick = {
+                        mainActivityViewModel.changeDestination(destination)
+                    }) {
+                        Text(destination.name)
+                    }
+                }
+            }
+        }
+
     }
 }
