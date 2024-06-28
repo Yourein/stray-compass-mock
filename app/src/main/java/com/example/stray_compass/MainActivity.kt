@@ -180,9 +180,7 @@ fun PermissionRequestView(
 }
 
 @Composable
-fun Viewer(
-    viewModel: MainActivityViewModel
-) {
+fun Viewer(viewModel: MainActivityViewModel) {
     val currentState = viewModel.trippingState
     Viewer(
         azimuth = viewModel.azimuthInDegrees,
